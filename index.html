@@ -2,7 +2,6 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   </head>
 <body>
 
@@ -10,134 +9,74 @@
 Your browser does not support the HTML canvas tag.</canvas>
 
 <script>
-var c = document.getElementById("myCanvas");
-
-function randInt(max) {
-  return Math.floor(Math.random() * (max+1));
-}
-
+// sizing options
 var size = 127;
 var minNumSquares = 4
 var maxNumSquares = 10
-var numSquares = randInt(maxNumSquares-minNumSquares)+minNumSquares;
 
-var types = []
-var colorBitsets = []
+// color options
+let colors =["black", "green", "blue", "red"]
 
-// generate data
-for (let i = 0; i < numSquares; i++) {
-  let typesRow = []
-  let colorBitsetsRow = []
-  for (let j = 0; j < numSquares; j++) {
-    typesRow.push(randInt(1))
-    colorBitsetsRow.push(randInt(15))
-  }
-  types.push(typesRow)
-  colorBitsets.push(colorBitsetsRow)
-}
-
-console.log(types)
-console.log(colorBitsets)
-
+// picking specific config, based on above options
+var c = document.getElementById("myCanvas");
 var ctx = c.getContext("2d");
-
-let color = ["black", "green", "blue", "red"][randInt(4)]
+var numSquares = randInt(maxNumSquares-minNumSquares)+minNumSquares;
 let drawGrid = [false, false, true][randInt(3)];
-
+let color = colors[randInt(colors.length - 1)]
 ctx.strokeStyle = color
 ctx.fillStyle = color
-ctx.imageSmoothingEnabled = false;
-ctx.mozImageSmoothingEnabled = false;
-ctx.webkitImageSmoothingEnabled = false;
-//ctx.beginPath();
-//ctx.rect(95,50,40,40);
-//ctx.stroke();
-
 const ORTHOGONAL = 0;
 const DIAGONAL = 1;
+let halfSize = size/2
 
-function getBit(number, bitPosition) {
-  return (number & (1 << bitPosition)) === 0 ? 0 : 1;
-}
-
-// draw the thing!
-ctx.beginPath();
+// drawing the doodle
 for (let i = 0; i < numSquares; i++) {
   for (let j = 0; j < numSquares; j++) {
-    let startX = (j*size)+1
-    let startY = (i*size)+1
-    let type = types[i][j]
-    let colorBitset = colorBitsets[i][j]
+    let startX = j*size
+    let startY = i*size
+    let type = randInt(1)
+    let colorBitset = randInt(15)
 
-    if (drawGrid) {
-      ctx.strokeRect(startX, startY, size, size);
-    }
+    drawGrid && ctx.strokeRect(startX, startY, size, size)
 
     if (type == ORTHOGONAL) {
-      if (getBit(colorBitset, 0)===1) {
-	ctx.fillRect(startX, startY, size/2, size/2)
-	ctx.strokeRect(startX, startY, size/2, size/2)
-      }
-      if (getBit(colorBitset, 1)===1) {
-	ctx.fillRect(startX+size/2, startY, size/2, size/2)
-	ctx.strokeRect(startX+size/2, startY, size/2, size/2)
-      }
-      if (getBit(colorBitset, 2)===1) {
-	ctx.fillRect(startX, startY+(size/2), size/2, size/2)
-	ctx.strokeRect(startX, startY+(size/2), size/2, size/2)
-      }
-      if (getBit(colorBitset, 3)===1) {
-	ctx.fillRect(startX+(size/2), startY+(size/2), size/2, size/2)
-	ctx.strokeRect(startX+(size/2), startY+(size/2), size/2, size/2)
-      }
+      getBit(colorBitset, 0) && drawRect(ctx, startX, startY, halfSize, halfSize)                   // top left
+      getBit(colorBitset, 1) && drawRect(ctx, startX+halfSize, startY, halfSize, halfSize)          // top right
+      getBit(colorBitset, 2) && drawRect(ctx, startX, startY+halfSize, halfSize, halfSize)          // bottom left
+      getBit(colorBitset, 3) && drawRect(ctx, startX+halfSize, startY+halfSize, halfSize, halfSize) // bottom right
     } else {
-      if (getBit(colorBitset, 0)===1) {
-	drawTriangle(ctx, startX, startY, startX+size, startY, startX+(size/2), startY+(size/2)) // top
-      }
-      if (getBit(colorBitset, 1)===1) {
-	drawTriangle(ctx, startX, startY, startX, startY+size, startX+(size/2), startY+(size/2)) // left
-      }
-      if (getBit(colorBitset, 2)===1) {
-	drawTriangle(ctx, startX, startY+size, startX+size, startY+size, startX+(size/2), startY+(size/2)) //bottom
-      }
-      if (getBit(colorBitset, 3)===1) {
-	drawTriangle(ctx, startX+size, startY, startX+size, startY+size, startX+(size/2), startY+(size/2)) //right
-      }
+      getBit(colorBitset, 0) && drawTriangle(ctx, startX, startY, startX+size, startY, startX+halfSize, startY+halfSize)           // top
+      getBit(colorBitset, 1) && drawTriangle(ctx, startX, startY, startX, startY+size, startX+halfSize, startY+halfSize)           // left
+      getBit(colorBitset, 2) && drawTriangle(ctx, startX, startY+size, startX+size, startY+size, startX+halfSize, startY+halfSize) // bottom
+      getBit(colorBitset, 3) && drawTriangle(ctx, startX+size, startY, startX+size, startY+size, startX+halfSize, startY+halfSize) // right
     }
   }
 }
-//  ctx.stroke();
 
+function drawRect(ctx, x, y, width, height) {
+  ctx.fillRect(x, y, width, height)
+  ctx.strokeRect(x, y, width, height)
+}
 
 function drawTriangle(ctx, x1, y1, x2, y2, x3, y3) {
-  //context.clearRect(0, 0, canvas.width, canvas.height);
-
-  //context.fillStyle = "#FFFFFF";
-  //context.fillRect(0, 0, canvas.width, canvas.height);
-
-  //let height = 200 * Math.cos(Math.PI / 6);
-
   ctx.beginPath();
   ctx.moveTo(x1, y1);
   ctx.lineTo(x2, y2);
   ctx.lineTo(x3, y3);
   ctx.closePath();
-
-  // the outline
-  //ctx.lineWidth = 1;
-  //ctx.strokeStyle = '#666666';
-  //ctx.fillStyle = "#FFCC00";
-  ctx.stroke();
-
-  // the fill color
-  //ctx.fillStyle = "#FFCC00";
   ctx.fill();
+  ctx.stroke();
 }
 
+function randInt(max) {
+  return Math.floor(Math.random() * (max+1));
+}
+
+function getBit(number, bitPosition) {
+  return (number & (1 << bitPosition)) === 0 ? 0 : 1;
+}
 
 </script> 
-
 </body>
 </html>
-
 
