@@ -6,7 +6,7 @@
   </head>
 <body>
 
-<canvas id="myCanvas" width="640" height="640" style="border:0px dotted #d3d3d3;">
+<canvas id="myCanvas" width="1600" height="1600" style="border:0px dotted #d3d3d3;">
 Your browser does not support the HTML canvas tag.</canvas>
 
 <script>
@@ -17,7 +17,9 @@ function randInt(max) {
 }
 
 var size = 127;
-var numSquares = 4;
+var minNumSquares = 4
+var maxNumSquares = 10
+var numSquares = randInt(maxNumSquares-minNumSquares)+minNumSquares;
 
 var types = []
 var colorBitsets = []
@@ -38,8 +40,10 @@ console.log(types)
 console.log(colorBitsets)
 
 var ctx = c.getContext("2d");
-let drawGrid = false;
-let color = "black"
+
+let color = ["black", "green", "blue", "red"][randInt(4)]
+let drawGrid = [false, false, true][randInt(3)];
+
 ctx.strokeStyle = color
 ctx.fillStyle = color
 ctx.imageSmoothingEnabled = false;
