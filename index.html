@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  </head>
+<body>
+
+<canvas id="myCanvas" width="640" height="640" style="border:0px dotted #d3d3d3;">
+Your browser does not support the HTML canvas tag.</canvas>
+
+<script>
+var c = document.getElementById("myCanvas");
+
+function randInt(max) {
+  return Math.floor(Math.random() * (max+1));
+}
+
+var size = 127;
+var numSquares = 4;
+
+var types = []
+var colorBitsets = []
+
+// generate data
+for (let i = 0; i < numSquares; i++) {
+  let typesRow = []
+  let colorBitsetsRow = []
+  for (let j = 0; j < numSquares; j++) {
+    typesRow.push(randInt(1))
+    colorBitsetsRow.push(randInt(15))
+  }
+  types.push(typesRow)
+  colorBitsets.push(colorBitsetsRow)
+}
+
+console.log(types)
+console.log(colorBitsets)
+
+var ctx = c.getContext("2d");
+let drawGrid = false;
+let color = "black"
+ctx.strokeStyle = color
+ctx.fillStyle = color
+ctx.imageSmoothingEnabled = false;
+ctx.mozImageSmoothingEnabled = false;
+ctx.webkitImageSmoothingEnabled = false;
+//ctx.beginPath();
+//ctx.rect(95,50,40,40);
+//ctx.stroke();
+
+const ORTHOGONAL = 0;
+const DIAGONAL = 1;
+
+function getBit(number, bitPosition) {
+  return (number & (1 << bitPosition)) === 0 ? 0 : 1;
+}
+
+// draw the thing!
+ctx.beginPath();
+for (let i = 0; i < numSquares; i++) {
+  for (let j = 0; j < numSquares; j++) {
+    let startX = (j*size)+1
+    let startY = (i*size)+1
+    let type = types[i][j]
+    let colorBitset = colorBitsets[i][j]
+
+    if (drawGrid) {
+      ctx.strokeRect(startX, startY, size, size);
+    }
+
+    if (type == ORTHOGONAL) {
+      if (getBit(colorBitset, 0)===1) {
+	ctx.fillRect(startX, startY, size/2, size/2)
+	ctx.strokeRect(startX, startY, size/2, size/2)
+      }
+      if (getBit(colorBitset, 1)===1) {
+	ctx.fillRect(startX+size/2, startY, size/2, size/2)
+	ctx.strokeRect(startX+size/2, startY, size/2, size/2)
+      }
+      if (getBit(colorBitset, 2)===1) {
+	ctx.fillRect(startX, startY+(size/2), size/2, size/2)
+	ctx.strokeRect(startX, startY+(size/2), size/2, size/2)
+      }
+      if (getBit(colorBitset, 3)===1) {
+	ctx.fillRect(startX+(size/2), startY+(size/2), size/2, size/2)
+	ctx.strokeRect(startX+(size/2), startY+(size/2), size/2, size/2)
+      }
+    } else {
+      if (getBit(colorBitset, 0)===1) {
+	drawTriangle(ctx, startX, startY, startX+size, startY, startX+(size/2), startY+(size/2)) // top
+      }
+      if (getBit(colorBitset, 1)===1) {
+	drawTriangle(ctx, startX, startY, startX, startY+size, startX+(size/2), startY+(size/2)) // left
+      }
+      if (getBit(colorBitset, 2)===1) {
+	drawTriangle(ctx, startX, startY+size, startX+size, startY+size, startX+(size/2), startY+(size/2)) //bottom
+      }
+      if (getBit(colorBitset, 3)===1) {
+	drawTriangle(ctx, startX+size, startY, startX+size, startY+size, startX+(size/2), startY+(size/2)) //right
+      }
+    }
+  }
+}
+//  ctx.stroke();
+
+
+function drawTriangle(ctx, x1, y1, x2, y2, x3, y3) {
+  //context.clearRect(0, 0, canvas.width, canvas.height);
+
+  //context.fillStyle = "#FFFFFF";
+  //context.fillRect(0, 0, canvas.width, canvas.height);
+
+  //let height = 200 * Math.cos(Math.PI / 6);
+
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.lineTo(x3, y3);
+  ctx.closePath();
+
+  // the outline
+  //ctx.lineWidth = 1;
+  //ctx.strokeStyle = '#666666';
+  //ctx.fillStyle = "#FFCC00";
+  ctx.stroke();
+
+  // the fill color
+  //ctx.fillStyle = "#FFCC00";
+  ctx.fill();
+}
+
+
+</script> 
+
+</body>
+</html>
+
+
